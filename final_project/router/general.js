@@ -29,8 +29,25 @@ public_users.get('/isbn/:isbn',function (req, res) {
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const authorParam = req.params.author.toLowerCase();
+    const matchingBooks = [];
+  
+    // Ambil semua key dari objek books
+    const keys = Object.keys(books);
+    
+    // Iterasi melalui setiap key dan periksa apakah author sesuai
+    keys.forEach((key) => {
+      if (books[key].author.toLowerCase() === authorParam) {
+        matchingBooks.push(books[key]);
+      }
+    });
+  
+    // Jika ditemukan buku-buku dengan penulis tersebut, kembalikan hasilnya
+    if (matchingBooks.length > 0) {
+      return res.status(200).json(matchingBooks);
+    } else {
+      return res.status(404).json({ message: "Buku dari penulis tersebut tidak ditemukan" });
+    }
 });
 
 // Get all books based on title
