@@ -64,7 +64,6 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 regd_users.delete("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
   const username = req.session.username;
-  console.log(username);
 
   const book = books[isbn];
   if (!book) {
