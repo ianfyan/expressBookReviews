@@ -1,0 +1,235 @@
+openapi: 3.0.0
+info:
+  title: Express Book Reviews API
+  version: "1.0.0"
+  description: API untuk autentikasi customer dan general routes (book reviews dan registrasi).
+servers:
+  - url: http://localhost:5000
+paths:
+  /customer/login:
+    post:
+      summary: Login Customer
+      description: Login sebagai customer yang terdaftar. Mengembalikan token JWT dan menyimpannya di session.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: testuser
+                password:
+                  type: string
+                  example: password123
+      responses:
+        "200":
+          description: Customer successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Customer successfully logged in
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        "400":
+          description: Bad Request - Username dan password harus disediakan
+        "401":
+          description: Unauthorized - Invalid username or password
+  /customer/auth/review/{isbn}:
+    delete:
+      summary: Hapus Review Buku
+      description: Menghapus review buku berdasarkan ISBN. Hanya review dari user yang sedang login yang bisa dihapus.
+      parameters:
+        - in: path
+          name: isbn
+          schema:
+            type: string
+          required: true
+          description: ISBN buku
+      responses:
+        "200":
+          description: Review berhasil dihapus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Review berhasil dihapus
+                  reviews:
+                    type: object
+                    description: Sisa review buku setelah dihapus
+        "401":
+          description: Unauthorized - No token provided atau Invalid token
+        "404":
+          description: Review atau buku tidak ditemukan
+  /register:
+    post:
+      summary: Registrasi User
+      description: Registrasi user baru dengan username dan password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: newuser
+                password:
+                  type: string
+                  example: newpassword
+      responses:
+        "200":
+          description: User berhasil didaftarkan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User berhasil didaftarkan
+        "400":
+          description: Bad Request - Username dan password harus disediakan
+        "409":
+          description: Conflict - User sudah ada
+  /:
+    get:
+      summary: Dapatkan Daftar Buku
+      description: Mengambil daftar buku yang tersedia di shop.
+      responses:
+        "200":
+          description: Daftar buku berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: 
+                  type: object
+                  properties:
+                    author:
+                      type: string
+                      example: Chinua Achebe
+                    title:
+                      type: string
+                      example: Things Fall Apart
+                    reviews:
+                      type: object
+                      example: {}
+        "500":
+          description: Internal Server Error
+  /isbn/{isbn}:
+    get:
+      summary: Dapatkan Detail Buku berdasarkan ISBN
+      description: Mengambil detail buku berdasarkan ISBN.
+      parameters:
+        - in: path
+          name: isbn
+          required: true
+          schema:
+            type: string
+          description: ISBN buku
+      responses:
+        "200":
+          description: Detail buku berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  author:
+                    type: string
+                  title:
+                    type: string
+                  reviews:
+                    type: object
+        "404":
+          description: Buku dengan ISBN tersebut tidak ditemukan
+  /author/{author}:
+    get:
+      summary: Dapatkan Buku berdasarkan Author
+      description: Mengambil buku-buku berdasarkan penulis.
+      parameters:
+        - in: path
+          name: author
+          required: true
+          schema:
+            type: string
+          description: Nama penulis (case insensitive)
+      responses:
+        "200":
+          description: Buku-buku dari penulis berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    author:
+                      type: string
+                    title:
+                      type: string
+                    reviews:
+                      type: object
+        "404":
+          description: Buku dari penulis tersebut tidak ditemukan
+  /title/{title}:
+    get:
+      summary: Dapatkan Buku berdasarkan Judul
+      description: Mengambil buku-buku yang judulnya mengandung parameter pencarian (case insensitive).
+      parameters:
+        - in: path
+          name: title
+          required: true
+          schema:
+            type: string
+          description: Judul buku atau kata kunci di dalam judul
+      responses:
+        "200":
+          description: Buku-buku dengan judul yang sesuai berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    author:
+                      type: string
+                    title:
+                      type: string
+                    reviews:
+                      type: object
+        "404":
+          description: Buku dengan judul tersebut tidak ditemukan
+  /review/{isbn}:
+    get:
+      summary: Dapatkan Review Buku
+      description: Mengambil review buku berdasarkan ISBN.
+      parameters:
+        - in: path
+          name: isbn
+          required: true
+          schema:
+            type: string
+          description: ISBN buku
+      responses:
+        "200":
+          description: Review buku berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Review buku
+        "404":
+          description: Buku dengan ISBN tersebut tidak ditemukan
