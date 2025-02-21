@@ -70,6 +70,40 @@ paths:
           description: Unauthorized - No token provided atau Invalid token
         "404":
           description: Review atau buku tidak ditemukan
+    put:
+      summary: Tambah/Modifikasi Review Buku
+      description: Menambahkan atau memodifikasi review buku berdasarkan ISBN. Review dikirim sebagai query parameter dan diidentifikasi berdasarkan username yang tersimpan di session.
+      parameters:
+        - in: path
+          name: isbn
+          required: true
+          schema:
+            type: string
+          description: ISBN buku yang akan direview
+        - in: query
+          name: review
+          required: true
+          schema:
+            type: string
+          description: Review buku yang diberikan oleh user
+      responses:
+        "200":
+          description: Review berhasil ditambahkan atau dimodifikasi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Review berhasil ditambahkan/dimodifikasi
+                  reviews:
+                    type: object
+                    description: Koleksi review yang ada untuk buku tersebut, diindeks berdasarkan username
+        "400":
+          description: Bad Request - Review tidak disediakan
+        "404":
+          description: Buku dengan ISBN tersebut tidak ditemukan
   /register:
     post:
       summary: Registrasi User

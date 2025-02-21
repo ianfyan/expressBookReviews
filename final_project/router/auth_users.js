@@ -35,7 +35,7 @@ regd_users.post("/login", (req,res) => {
     }
     
     // Jika valid, buat token JWT dengan payload username dan secret 'access'
-    const token = jwt.sign({ username }, "access", { expiresIn: "1h" });
+    const token = jwt.sign({ username }, "fingerprint_customer", { expiresIn: "1h" });
     
     // Simpan token dan username di session (pastikan session middleware sudah diatur di app.js)
     req.session.token = token;
@@ -46,24 +46,52 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-    const isbn = req.params.isbn;
-    const username = req.session.username; // pastikan session middleware sudah terkonfigurasi
-    
-    // Cek apakah buku dengan ISBN tersebut ada
-    const book = books[isbn];
-    if (!book) {
-      return res.status(404).json({ message: "Buku dengan ISBN tersebut tidak ditemukan" });
-    }
-    
-    // Pastikan buku memiliki properti reviews dan review dari user ada
-    if (!book.reviews || !book.reviews[username]) {
-      return res.status(404).json({ message: "Review dari user ini tidak ditemukan" });
-    }
-    
-    // Hapus review berdasarkan username
-    delete book.reviews[username];
-    
-    return res.status(200).json({ message: "Review berhasil dihapus", reviews: book.reviews });
+  const isbn = req.params.isbn;
+  const review = req.query.review;
+  const username = req.session.username;
+
+  // Cek apakah buku dengan ISBN tersebut ada
+  const book = books[isbn];
+  if (!book) {
+    return res.status(404).json({ message: "Buku dengan ISBN tersebut tidak ditemukan" });
+  }
+
+  // Pastikan ada review yang dikirimkan
+  if (!review) {
+    return res.status(400).json({ message: "Review harus disediakan sebagai query parameter" });
+  }
+
+  // Jika buku belum memiliki properti reviews, inisialisasi sebagai objek kosong
+  if (!book.reviews) {
+    book.reviews = {};
+  }
+
+  // Tambah atau modifikasi review berdasarkan username
+  book.reviews[username] = review;
+
+  return res.status(200).json({ message: "Review berhasil ditambahkan/dimodifikasi", reviews: book.reviews });
+});
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const isbn = req.params.isbn;
+  const username = req.session.username; // pastikan session middleware sudah terkonfigurasi
+  console.log(username);
+
+  // Cek apakah buku dengan ISBN tersebut ada
+  const book = books[isbn];
+  if (!book) {
+    return res.status(404).json({ message: "Buku dengan ISBN tersebut tidak ditemukan" });
+  }
+
+  // Pastikan buku memiliki properti reviews dan review dari user ada
+  if (!book.reviews || !book.reviews[username]) {
+    return res.status(404).json({ message: "Review dari user ini tidak ditemukan" });
+  }
+
+  // Hapus review berdasarkan username
+  delete book.reviews[username];
+
+  return res.status(200).json({ message: "Review berhasil dihapus", reviews: book.reviews });
 });
 
 module.exports.authenticated = regd_users;
