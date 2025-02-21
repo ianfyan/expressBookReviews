@@ -4,6 +4,14 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
+function getBooks() {
+    return new Promise((resolve, reject) => {
+      // Simulasi delay asynchronous (misal 500ms)
+      setTimeout(() => {
+        resolve(books);
+      }, 500);
+    });
+}
 
 public_users.post("/register", (req,res) => {
     const { username, password } = req.body;
@@ -25,65 +33,72 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  return res.status(200).json(books);
+public_users.get('/',async function (req, res) {
+    try {
+        const allBooks = await getBooks();
+        return res.status(200).json(allBooks);
+      } catch (error) {
+        return res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
+      }
 });
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-    const isbn = req.params.isbn;
-    const book = books[isbn];
-  
-    if (book) {
-      return res.status(200).json(book);
-    } else {
-      return res.status(404).json({ message: "Buku dengan ISBN tersebut tidak ditemukan" });
+public_users.get('/isbn/:isbn',async function (req, res) {
+    try {
+        const isbn = req.params.isbn;
+        const allBooks = await getBooks();
+        const book = allBooks[isbn];
+        if (book) {
+          return res.status(200).json(book);
+        } else {
+          return res.status(404).json({ message: "Buku dengan ISBN tersebut tidak ditemukan" });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
     }
  });
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-    const authorParam = req.params.author.toLowerCase();
-    const matchingBooks = [];
-  
-    // Ambil semua key dari objek books
-    const keys = Object.keys(books);
-    
-    // Iterasi melalui setiap key dan periksa apakah author sesuai
-    keys.forEach((key) => {
-      if (books[key].author.toLowerCase() === authorParam) {
-        matchingBooks.push(books[key]);
-      }
-    });
-  
-    // Jika ditemukan buku-buku dengan penulis tersebut, kembalikan hasilnya
-    if (matchingBooks.length > 0) {
-      return res.status(200).json(matchingBooks);
-    } else {
-      return res.status(404).json({ message: "Buku dari penulis tersebut tidak ditemukan" });
+public_users.get('/author/:author',async function (req, res) {
+    try {
+        const authorParam = req.params.author.toLowerCase();
+        const allBooks = await getBooks();
+        const matchingBooks = [];
+        // Iterasi semua key dari objek books
+        Object.keys(allBooks).forEach(key => {
+          if (allBooks[key].author.toLowerCase() === authorParam) {
+            matchingBooks.push(allBooks[key]);
+          }
+        });
+        if (matchingBooks.length > 0) {
+          return res.status(200).json(matchingBooks);
+        } else {
+          return res.status(404).json({ message: "Buku dari penulis tersebut tidak ditemukan" });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
     }
 });
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-    const titleParam = req.params.title.toLowerCase();
-    const matchingBooks = [];
-  
-    // Ambil semua key dari objek books
-    const keys = Object.keys(books);
-  
-    // Iterasi setiap key dan periksa apakah title mengandung kata kunci yang diberikan
-    keys.forEach(key => {
-      if (books[key].title.toLowerCase().includes(titleParam)) {
-        matchingBooks.push(books[key]);
-      }
-    });
-  
-    // Jika ditemukan buku dengan judul yang sesuai, kembalikan hasilnya
-    if (matchingBooks.length > 0) {
-      return res.status(200).json(matchingBooks);
-    } else {
-      return res.status(404).json({ message: "Buku dengan judul tersebut tidak ditemukan" });
+public_users.get('/title/:title',async function (req, res) {
+    try {
+        const titleParam = req.params.title.toLowerCase();
+        const allBooks = await getBooks();
+        const matchingBooks = [];
+        // Iterasi semua key dari objek books
+        Object.keys(allBooks).forEach(key => {
+          if (allBooks[key].title.toLowerCase().includes(titleParam)) {
+            matchingBooks.push(allBooks[key]);
+          }
+        });
+        if (matchingBooks.length > 0) {
+          return res.status(200).json(matchingBooks);
+        } else {
+          return res.status(404).json({ message: "Buku dengan judul tersebut tidak ditemukan" });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
     }
 });
 
