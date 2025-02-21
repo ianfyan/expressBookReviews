@@ -19,15 +19,15 @@ regd_users.post("/login", (req,res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ message: "Username dan password harus disediakan" });
+      return res.status(400).json({ message: "Username and password must be provided" });
     }
 
     if (isValid(username)) {
-      return res.status(401).json({ message: "User belum terdaftar" });
+      return res.status(401).json({ message: "User is not registered yet" });
     }
 
     if (!authenticatedUser(username, password)) {
-      return res.status(401).json({ message: "Username atau password tidak valid" });
+      return res.status(401).json({ message: "Invalid username or password" });
     }
 
     const token = jwt.sign({ username }, "fingerprint_customer", { expiresIn: "1h" });
@@ -45,11 +45,11 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
   const book = books[isbn];
   if (!book) {
-    return res.status(404).json({ message: "Buku dengan ISBN tersebut tidak ditemukan" });
+    return res.status(404).json({ message: "The book with the ISBN was not found" });
   }
 
   if (!review) {
-    return res.status(400).json({ message: "Review harus disediakan sebagai query parameter" });
+    return res.status(400).json({ message: "Reviews must be provided as query parameters" });
   }
 
   if (!book.reviews) {
@@ -58,7 +58,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
   book.reviews[username] = review;
 
-  return res.status(200).json({ message: "Review berhasil ditambahkan/dimodifikasi", reviews: book.reviews });
+  return res.status(200).json({ message: "Review successfully added/modified", reviews: book.reviews });
 });
 
 regd_users.delete("/auth/review/:isbn", (req, res) => {
@@ -68,16 +68,16 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
 
   const book = books[isbn];
   if (!book) {
-    return res.status(404).json({ message: "Buku dengan ISBN tersebut tidak ditemukan" });
+    return res.status(404).json({ message: "The book with the ISBN was not found" });
   }
 
   if (!book.reviews || !book.reviews[username]) {
-    return res.status(404).json({ message: "Review dari user ini tidak ditemukan" });
+    return res.status(404).json({ message: "No reviews from this user found" });
   }
 
   delete book.reviews[username];
 
-  return res.status(200).json({ message: "Review berhasil dihapus", reviews: book.reviews });
+  return res.status(200).json({ message: "Review successfully deleted", reviews: book.reviews });
 });
 
 module.exports.authenticated = regd_users;

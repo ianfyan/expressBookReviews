@@ -16,16 +16,16 @@ public_users.post("/register", (req,res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ message: "Username dan password harus disediakan" });
+      return res.status(400).json({ message: "Username and password must be provided" });
     }
   
     const userExists = users.some(user => user.username === username);
     if (userExists) {
-      return res.status(409).json({ message: "User sudah ada. Silakan gunakan username lain" });
+      return res.status(409).json({ message: "The user already exists. Please use another username" });
     }
   
     users.push({ username, password });
-    return res.status(200).json({ message: "User berhasil didaftarkan" });
+    return res.status(200).json({ message: "User has been successfully registered" });
 });
 
 public_users.get('/',async function (req, res) {
@@ -33,7 +33,7 @@ public_users.get('/',async function (req, res) {
         const allBooks = await getBooks();
         return res.status(200).json(allBooks);
       } catch (error) {
-        return res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
+        return res.status(500).json({ message: "There is an error", error: error.message });
       }
 });
 
@@ -45,10 +45,10 @@ public_users.get('/isbn/:isbn',async function (req, res) {
         if (book) {
           return res.status(200).json(book);
         } else {
-          return res.status(404).json({ message: "Buku dengan ISBN tersebut tidak ditemukan" });
+          return res.status(404).json({ message: "The book with the ISBN was not found" });
         }
     } catch (error) {
-        return res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
+        return res.status(500).json({ message: "There is an error", error: error.message });
     }
  });
 
@@ -66,10 +66,10 @@ public_users.get('/author/:author',async function (req, res) {
         if (matchingBooks.length > 0) {
           return res.status(200).json(matchingBooks);
         } else {
-          return res.status(404).json({ message: "Buku dari penulis tersebut tidak ditemukan" });
+          return res.status(404).json({ message: "Books by this author were not found" });
         }
     } catch (error) {
-        return res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
+        return res.status(500).json({ message: "There is an error", error: error.message });
     }
 });
 
@@ -87,10 +87,10 @@ public_users.get('/title/:title',async function (req, res) {
         if (matchingBooks.length > 0) {
           return res.status(200).json(matchingBooks);
         } else {
-          return res.status(404).json({ message: "Buku dengan judul tersebut tidak ditemukan" });
+          return res.status(404).json({ message: "No book with that title found" });
         }
     } catch (error) {
-        return res.status(500).json({ message: "Terjadi kesalahan", error: error.message });
+        return res.status(500).json({ message: "There is an error", error: error.message });
     }
 });
 
@@ -102,7 +102,7 @@ public_users.get('/review/:isbn',function (req, res) {
     if (book) {
       return res.status(200).json(book.reviews);
     } else {
-      return res.status(404).json({ message: "Buku dengan ISBN tersebut tidak ditemukan" });
+      return res.status(404).json({ message: "The book with the ISBN was not found" });
     }
 });
 
