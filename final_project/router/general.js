@@ -52,8 +52,25 @@ public_users.get('/author/:author',function (req, res) {
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const titleParam = req.params.title.toLowerCase();
+    const matchingBooks = [];
+  
+    // Ambil semua key dari objek books
+    const keys = Object.keys(books);
+  
+    // Iterasi setiap key dan periksa apakah title mengandung kata kunci yang diberikan
+    keys.forEach(key => {
+      if (books[key].title.toLowerCase().includes(titleParam)) {
+        matchingBooks.push(books[key]);
+      }
+    });
+  
+    // Jika ditemukan buku dengan judul yang sesuai, kembalikan hasilnya
+    if (matchingBooks.length > 0) {
+      return res.status(200).json(matchingBooks);
+    } else {
+      return res.status(404).json({ message: "Buku dengan judul tersebut tidak ditemukan" });
+    }
 });
 
 //  Get book review
