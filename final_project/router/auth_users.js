@@ -46,8 +46,24 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const isbn = req.params.isbn;
+    const username = req.session.username; // pastikan session middleware sudah terkonfigurasi
+    
+    // Cek apakah buku dengan ISBN tersebut ada
+    const book = books[isbn];
+    if (!book) {
+      return res.status(404).json({ message: "Buku dengan ISBN tersebut tidak ditemukan" });
+    }
+    
+    // Pastikan buku memiliki properti reviews dan review dari user ada
+    if (!book.reviews || !book.reviews[username]) {
+      return res.status(404).json({ message: "Review dari user ini tidak ditemukan" });
+    }
+    
+    // Hapus review berdasarkan username
+    delete book.reviews[username];
+    
+    return res.status(200).json({ message: "Review berhasil dihapus", reviews: book.reviews });
 });
 
 module.exports.authenticated = regd_users;
